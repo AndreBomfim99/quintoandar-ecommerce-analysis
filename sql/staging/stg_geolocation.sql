@@ -33,8 +33,8 @@ olist_prepared AS (
   
   WHERE 1=1
     AND geolocation_zip_code_prefix IS NOT NULL
-    AND geolocation_lat BETWEEN -34 AND 5      
-    AND geolocation_lng BETWEEN -74 AND -34    
+    AND geolocation_lat BETWEEN -34 AND 5     
+    AND geolocation_lng BETWEEN -74 AND -34   
     AND NOT (geolocation_lat = 0 AND geolocation_lng = 0) 
     
     AND UPPER(TRIM(geolocation_state)) IN (
@@ -50,22 +50,23 @@ basedosdados_prepared AS (
   SELECT
     SUBSTR(cep, 1, 5) AS cep_prefix,
     
-    nome AS bd_city,
-    sigla_uf AS bd_state,
-    id_municipio AS bd_municipality_id,
+    ANY_VALUE(localidade) AS bd_city,
+    ANY_VALUE(sigla_uf) AS bd_state,
+    ANY_VALUE(id_municipio) AS bd_municipality_id,
     
-    ANY_VALUE(latitude) AS bd_lat,
-    ANY_VALUE(longitude) AS bd_lng
+    ANY_VALUE(ST_Y(centroide)) AS bd_lat,  
+    ANY_VALUE(ST_X(centroide)) AS bd_lng   
     
   FROM `basedosdados.br_bd_diretorios_brasil.cep`
   
   WHERE 1=1
     AND cep IS NOT NULL
     AND sigla_uf IS NOT NULL
-    AND (latitude IS NULL OR latitude BETWEEN -34 AND 5)
-    AND (longitude IS NULL OR longitude BETWEEN -74 AND -34)
+    AND centroide IS NOT NULL
+    AND ST_Y(centroide) BETWEEN -34 AND 5     
+    AND ST_X(centroide) BETWEEN -74 AND -34    
   
-  GROUP BY cep_prefix, bd_city, bd_state, bd_municipality_id
+  GROUP BY cep_prefix
 ),
 
 joined AS (
@@ -152,9 +153,9 @@ FROM deduplicated
 
 ORDER BY geolocation_state, geolocation_zip_code_prefix;
 
+
 /*
 -- VALIDAÇÃO: Percentual de nulos e cobertura
--- Estatísticas gerais
 SELECT 
   'stg_geolocation' as tabela,
   COUNT(*) as total_ceps,
@@ -166,7 +167,6 @@ SELECT
   COUNTIF(municipality_id IS NULL) * 100.0 / COUNT(*) AS pct_null_municipality
 FROM `quintoandar-ecommerce-analysis.olist_staging.stg_geolocation`;
 
--- Cobertura da Base dos Dados
 SELECT 
   data_source,
   COUNT(*) AS total_ceps,
@@ -175,7 +175,6 @@ FROM `quintoandar-ecommerce-analysis.olist_staging.stg_geolocation`
 GROUP BY data_source
 ORDER BY total_ceps DESC;
 
--- Distribuição por região
 SELECT 
   geolocation_region,
   COUNT(*) AS total_ceps,
@@ -184,7 +183,6 @@ FROM `quintoandar-ecommerce-analysis.olist_staging.stg_geolocation`
 GROUP BY geolocation_region
 ORDER BY total_ceps DESC;
 
--- Verificar coordenadas válidas
 SELECT 
   COUNT(*) AS total_ceps,
   COUNTIF(geolocation_lat BETWEEN -34 AND 5 AND geolocation_lng BETWEEN -74 AND -34) AS ceps_coordenadas_validas,

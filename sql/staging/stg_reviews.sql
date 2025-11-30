@@ -7,70 +7,59 @@
 -- =========================================================
 
 CREATE OR REPLACE TABLE `quintoandar-ecommerce-analysis.olist_staging.stg_reviews` AS
-
-WITH source AS (
-  SELECT *
-  FROM `quintoandar-ecommerce-analysis.olist_raw.reviews`
-),
-
-cleaned AS (
-  SELECT
-    review_id,
-    order_id,
-    
-    review_score,
-    
-    CASE 
-      WHEN review_comment_title IS NOT NULL 
-      THEN TRIM(review_comment_title)
-      ELSE NULL 
-    END AS review_comment_title,
-    
-    CASE 
-      WHEN review_comment_message IS NOT NULL 
-      THEN TRIM(review_comment_message)
-      ELSE NULL 
-    END AS review_comment_message,
-    
-    PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', review_creation_date) AS review_creation_date,
-    PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', review_answer_timestamp) AS review_answer_timestamp,
-    
-    review_comment_message IS NOT NULL AND TRIM(review_comment_message) != '' AS has_comment
-    
-  FROM source
-  
-  WHERE 1=1
-    AND review_id IS NOT NULL
-    AND order_id IS NOT NULL
-    
-    AND review_score BETWEEN 1 AND 5
-    
-    AND review_creation_date IS NOT NULL
-),
-
-validated AS (
-  SELECT 
-    c.*
-  FROM cleaned c
-  INNER JOIN `quintoandar-ecommerce-analysis.olist_staging.stg_orders` o
-    ON c.order_id = o.order_id
-),
-
-deduplicated AS (
-  SELECT * EXCEPT(row_num)
-  FROM (
-    SELECT 
-      *,
-      ROW_NUMBER() OVER (
-        PARTITION BY review_id 
-        ORDER BY review_creation_date DESC
-      ) AS row_num
-    FROM validated
+WITH
+  source AS (
+    SELECT
+      *
+    FROM
+      `quintoandar-ecommerce-analysis`.olist_raw.reviews
+  ),
+  cleaned AS (
+    SELECT
+      review_id,
+      order_id,
+      review_score,
+      CASE
+        WHEN review_comment_title IS NOT NULL THEN TRIM(review_comment_title)
+        ELSE NULL
+      END AS review_comment_title,
+      CASE
+        WHEN review_comment_message IS NOT NULL THEN TRIM(review_comment_message)
+        ELSE NULL
+      END AS review_comment_message,
+      review_creation_date,
+      review_answer_timestamp,
+      review_comment_message IS NOT NULL AND TRIM(review_comment_message) != '' AS has_comment
+    FROM
+      source
+    WHERE
+      1 = 1 AND review_id IS NOT NULL AND order_id IS NOT NULL AND review_score BETWEEN 1 AND 5 AND review_creation_date IS NOT NULL
+  ),
+  validated AS (
+    SELECT
+      c.*
+    FROM
+      cleaned AS c
+      INNER JOIN
+      `quintoandar-ecommerce-analysis`.olist_staging.stg_orders AS o
+      ON c.order_id = o.order_id
+  ),
+  deduplicated AS (
+    SELECT
+      * EXCEPT (row_num)
+    FROM
+      (
+        SELECT
+          *,
+          ROW_NUMBER() OVER (PARTITION BY review_id
+            ORDER BY review_creation_date DESC) AS row_num
+        FROM
+          validated
+      )
+    WHERE
+      row_num = 1
   )
-  WHERE row_num = 1
-)
-
-SELECT 
+SELECT
   review_id,
   order_id,
   review_score,
@@ -79,9 +68,10 @@ SELECT
   review_creation_date,
   review_answer_timestamp,
   has_comment
-FROM deduplicated
-
+FROM
+  deduplicated
 ORDER BY review_creation_date DESC;
+
 
 /*
 -- VALIDAÇÃO: Percentual de nulos por coluna

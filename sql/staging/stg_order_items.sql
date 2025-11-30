@@ -7,62 +7,54 @@
 -- =========================================================
 
 CREATE OR REPLACE TABLE `quintoandar-ecommerce-analysis.olist_staging.stg_order_items` AS
-
-WITH source AS (
-  SELECT *
-  FROM `quintoandar-ecommerce-analysis.olist_raw.order_items`
-),
-
-cleaned AS (
-  SELECT
-    order_id,
-    order_item_id,
-    product_id,
-    seller_id,
-    
-    PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', shipping_limit_date) AS shipping_limit_date,
-    
-    price,
-    freight_value,
-    
-    price + freight_value AS total_item_value
-    
-  FROM source
-  
-  WHERE 1=1
-    AND order_id IS NOT NULL
-    AND product_id IS NOT NULL
-    AND seller_id IS NOT NULL
-    
-    AND price >= 0
-    AND freight_value >= 0
-    
-    AND price <= 50000
-),
-
-validated AS (
-  SELECT 
-    c.*
-  FROM cleaned c
-  INNER JOIN `quintoandar-ecommerce-analysis.olist_staging.stg_orders` o
-    ON c.order_id = o.order_id
-),
-
-deduplicated AS (
-  SELECT * EXCEPT(row_num)
-  FROM (
-    SELECT 
-      *,
-      ROW_NUMBER() OVER (
-        PARTITION BY order_id, order_item_id 
-        ORDER BY shipping_limit_date
-      ) AS row_num
-    FROM validated
+WITH
+  source AS (
+    SELECT
+      *
+    FROM
+      `quintoandar-ecommerce-analysis`.olist_raw.order_items
+  ),
+  cleaned AS (
+    SELECT
+      order_id,
+      order_item_id,
+      product_id,
+      seller_id,
+      shipping_limit_date,
+      price,
+      freight_value,
+      price + freight_value AS total_item_value
+    FROM
+      source
+    WHERE
+      1 = 1 AND order_id IS NOT NULL AND product_id IS NOT NULL AND seller_id IS NOT NULL AND price >= 0 AND
+      freight_value >= 0 AND price <= 50000
+  ),
+  validated AS (
+    SELECT
+      c.*
+    FROM
+      cleaned AS c
+      INNER JOIN
+      `quintoandar-ecommerce-analysis`.olist_staging.stg_orders AS o
+      ON c.order_id = o.order_id
+  ),
+  deduplicated AS (
+    SELECT
+      * EXCEPT (row_num)
+    FROM
+      (
+        SELECT
+          *,
+          ROW_NUMBER() OVER (PARTITION BY order_id, order_item_id
+            ORDER BY shipping_limit_date) AS row_num
+        FROM
+          validated
+      )
+    WHERE
+      row_num = 1
   )
-  WHERE row_num = 1
-)
-
-SELECT 
+SELECT
   order_id,
   order_item_id,
   product_id,
@@ -71,9 +63,10 @@ SELECT
   price,
   freight_value,
   total_item_value
-FROM deduplicated
-
+FROM
+  deduplicated
 ORDER BY order_id, order_item_id;
+
 
 /*
 -- VALIDAÇÃO: Percentual de nulos por coluna
