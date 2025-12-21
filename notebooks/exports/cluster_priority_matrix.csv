@@ -1,0 +1,6 @@
+Cluster,Name,Customers,Total Revenue,Value Score,Loyalty Score,Priority Score
+0,High Value One-Time,4743,3241779.26,3,1,3
+4,High Value One-Time,1,6726.66,3,1,3
+3,High Value One-Time,523,1019634.2,3,1,3
+2,At Risk,50552,5989766.97,1,1,1
+1,At Risk,39600,5025859.87,1,1,1

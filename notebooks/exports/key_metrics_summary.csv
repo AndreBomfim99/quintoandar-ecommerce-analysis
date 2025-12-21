@@ -1,0 +1,11 @@
+Metric,Value
+Total Orders,92563.0
+SLA Compliance Rate,0.9304257640741981
+Average Delivery Time (days),12.50233894752763
+Average Delay (days),9.611645962732918
+Delayed Orders Count,6440.0
+Delayed Orders Percentage,0.06957423592580189
+Average Freight Cost (R$),22.27098711148083
+Average Review Score,4.164957920551408
+Delay-Review Correlation,-0.29957887135830313
+Freight-SLA Correlation,-0.03865595409044706

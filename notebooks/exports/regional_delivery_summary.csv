@@ -1,0 +1,6 @@
+region,order_id,sla_compliant,delay_days,total_delivery_days,freight_value,review_score
+Central-West,5392,0.933,-11.771,15.054,25.718,4.142
+North,1609,0.91,-13.971,22.861,39.473,4.037
+Northeast,8548,0.87,-10.788,19.866,34.466,3.975
+South,13226,0.938,-12.406,14.114,23.874,4.199
+Southeast,63788,0.937,-10.997,10.704,19.579,4.188

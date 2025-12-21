@@ -1,0 +1,6 @@
+Cluster,Name,Customers,Avg Revenue,Total Revenue,Avg Orders,Avg Recency,Repeat Rate
+0,High Value One-Time,4743,R$ 683.49,R$ 3241779.26,1.0,2882 days,0.0%
+1,At Risk,39600,R$ 126.92,R$ 5025859.87,1.0,3023 days,0.0%
+2,At Risk,50552,R$ 118.49,R$ 5989766.97,1.0,2784 days,0.0%
+3,High Value One-Time,523,R$ 1949.59,R$ 1019634.20,1.0,2896 days,0.0%
+4,High Value One-Time,1,R$ 6726.66,R$ 6726.66,1.0,3109 days,0.0%

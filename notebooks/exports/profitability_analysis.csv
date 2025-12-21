@@ -1,0 +1,53 @@
+segmentation_type,segment_name,num_customers,avg_ltv_cac_ratio,profitability_category,avg_contribution_margin,total_revenue
+Cohort,2018-Q2,19107,3.34,Excellent,69.58,3192256.4
+Cohort,2018-Q1,20633,3.08,Excellent,59.29,3177553.22
+Cohort,2017-Q4,17338,3.18,Excellent,64.35,2756825.75
+Cohort,2018-Q3,11897,3.23,Excellent,62.64,1923542.82
+Cohort,2017-Q3,12212,3.14,Excellent,62.76,1916328.56
+Cohort,2017-Q2,8981,3.23,Excellent,67.74,1449481.74
+Cohort,2017-Q1,4970,3.29,Excellent,70.98,818419.53
+Cohort,2016-Q4,280,3.53,Excellent,79.23,49358.94
+RFM Segment,Other,27316,3.24,Excellent,67.26,4426019.87
+RFM Segment,Champions,5470,6.29,Excellent,191.28,1719273.79
+RFM Segment,Loyal Customers,6071,5.49,Excellent,163.43,1665859.57
+RFM Segment,At Risk,7765,4.24,Excellent,109.88,1647847.87
+RFM Segment,Can't Lose Them,5893,5.2,Excellent,152.0,1531220.69
+RFM Segment,Need Attention,6177,4.15,Excellent,104.02,1282451.47
+RFM Segment,Promising,6211,3.75,Excellent,84.13,1163978.34
+RFM Segment,Lost,10189,1.16,Break Even,-22.74,592830.06
+RFM Segment,Potential Loyalists,6102,1.35,Break Even,-15.92,410321.84
+RFM Segment,About to Sleep,5942,1.03,Break Even,-27.14,307191.31
+RFM Segment,New Customers,5254,1.03,Break Even,-27.58,271386.98
+RFM Segment,Hibernating,3029,1.75,Break Even,2.88,265385.17
+Region,Sudeste,65513,3.02,Excellent,61.12,9880032.42
+Region,Sul,13644,3.25,Excellent,63.88,2219016.11
+Region,Nordeste,8944,4.04,Excellent,80.01,1805969.24
+Region,Centro-Oeste,5539,3.54,Excellent,73.9,979611.09
+Region,Norte,1779,4.49,Excellent,91.66,399138.1
+State,SP,40075,2.86,Good,58.08,5721238.73
+State,RJ,12238,3.33,Excellent,68.71,2039064.75
+State,MG,11228,3.21,Excellent,63.73,1804618.82
+State,RS,5283,3.24,Excellent,62.32,855693.67
+State,PR,4857,3.18,Excellent,61.9,771905.4
+State,SC,3504,3.38,Excellent,69.0,591417.04
+State,BA,3219,3.64,Excellent,72.29,586292.33
+State,DF,2044,3.31,Excellent,67.99,338379.92
+State,GO,1926,3.41,Excellent,67.93,328406.41
+State,ES,1972,3.2,Excellent,60.81,315110.12
+State,PE,1578,3.91,Excellent,74.04,308899.68
+State,CE,1261,4.15,Excellent,84.44,261517.26
+State,PA,938,4.51,Excellent,96.03,211542.61
+State,MT,872,4.11,Excellent,90.18,179219.85
+State,MA,707,4.14,Excellent,71.07,146390.83
+State,PB,510,5.31,Excellent,118.39,135308.5
+State,MS,697,3.83,Excellent,87.39,133604.91
+State,PI,473,4.43,Excellent,85.7,104839.16
+State,RN,467,4.27,Excellent,84.89,99620.99
+State,AL,395,4.75,Excellent,109.96,93716.96
+State,SE,334,4.15,Excellent,76.03,69383.53
+State,TO,270,4.4,Excellent,85.41,59364.26
+State,RO,243,4.69,Excellent,91.43,56938.17
+State,AM,144,3.82,Excellent,65.8,27495.3
+State,AC,77,4.95,Excellent,105.96,19051.64
+State,AP,67,4.82,Excellent,108.33,16141.81
+State,RR,40,4.3,Excellent,70.32,8604.31

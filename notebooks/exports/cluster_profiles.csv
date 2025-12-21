@@ -1,0 +1,6 @@
+cluster,num_customers,total_revenue_mean,total_revenue_median,total_revenue_sum,total_orders_mean,total_orders_median,avg_order_value_mean,recency_mean,frequency_mean,monetary_mean,customer_lifespan_days_mean,orders_per_month_mean,avg_review_score_mean,is_repeat_customer_mean,cluster_name
+0,4743,683.49,617.24,3241779.26,1.0,1.0,683.49,2881.54,1.0,683.49,0.0,0.0,3.92,0.0,High Value One-Time
+1,39600,126.92,102.74,5025859.87,1.0,1.0,126.92,3022.86,1.0,126.92,0.0,0.0,3.66,0.0,At Risk
+2,50552,118.49,97.12,5989766.97,1.0,1.0,118.49,2784.26,1.0,118.49,0.0,0.0,4.46,0.0,At Risk
+3,523,1949.59,1738.17,1019634.2,1.0,1.0,1949.59,2896.39,1.0,1949.59,0.0,0.0,3.87,0.0,High Value One-Time
+4,1,6726.66,6726.66,6726.66,1.0,1.0,6726.66,3109.0,1.0,6726.66,0.0,0.0,5.0,0.0,High Value One-Time

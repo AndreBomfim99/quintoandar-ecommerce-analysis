@@ -2,3 +2,4 @@ Documentos/
 data/raw/*.csv
 
 *.md
+*.json

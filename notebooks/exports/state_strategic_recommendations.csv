@@ -1,0 +1,28 @@
+state_code,state_name,strategy_group,current_ltv,total_customers,action_primary,primary_channel,budget_suggested,roi_expected,ltv_target
+AC,AC,Early Stage,247.42,77,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",2310,15,371.13
+AL,AL,Early Stage,237.26,395,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",11850,15,355.89
+AM,AM,Early Stage,190.94,144,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",4320,15,286.40999999999997
+AP,AP,Early Stage,240.92,67,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",2010,15,361.38
+BA,BA,Growth Opportunities,182.13,3219,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",64380,40,227.6625
+CE,CE,Growth Opportunities,207.39,1261,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",25220,40,259.23749999999995
+DF,DF,Early Stage,165.55,2044,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",61320,15,248.32500000000002
+ES,ES,Early Stage,159.79,1972,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",59160,15,239.685
+GO,GO,Growth Opportunities,170.51,1926,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",38520,40,213.1375
+MA,MA,Growth Opportunities,207.06,707,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",14140,40,258.825
+MG,MG,Optimization Needed,160.72,11228,"Cross-sell/upsell programs, improve retention","In-app messages, Retargeting",168420,30,192.864
+MS,MS,Growth Opportunities,191.69,697,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",13940,40,239.6125
+MT,MT,Growth Opportunities,205.53,872,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",17440,40,256.9125
+PA,PA,Early Stage,225.53,938,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",28140,15,338.295
+PB,PB,Early Stage,265.31,510,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",15300,15,397.96500000000003
+PE,PE,Growth Opportunities,195.75,1578,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",31560,40,244.6875
+PI,PI,Early Stage,221.65,473,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",14190,15,332.475
+PR,PR,Optimization Needed,158.93,4857,"Cross-sell/upsell programs, improve retention","In-app messages, Retargeting",72855,30,190.716
+RJ,RJ,Optimization Needed,166.62,12238,"Cross-sell/upsell programs, improve retention","In-app messages, Retargeting",183570,30,199.944
+RN,RN,Growth Opportunities,213.32,467,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",9340,40,266.65
+RO,RO,Early Stage,234.31,243,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",7290,15,351.46500000000003
+RR,RR,Early Stage,215.11,40,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",1200,15,322.665
+RS,RS,Optimization Needed,161.97,5283,"Cross-sell/upsell programs, improve retention","In-app messages, Retargeting",79245,30,194.364
+SC,SC,Growth Opportunities,168.78,3504,"Targeted marketing campaigns, improve onboarding","Social media, Search ads",70080,40,210.975
+SE,SE,Early Stage,207.74,334,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",10020,15,311.61
+SP,SP,Optimization Needed,142.76,40075,"Cross-sell/upsell programs, improve retention","In-app messages, Retargeting",601125,30,171.31199999999998
+TO,TO,Early Stage,219.87,270,"Test marketing channels, validate product-market fit","Pilot campaigns, Partnerships",8100,15,329.805

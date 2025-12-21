@@ -1,0 +1,5 @@
+payment_type_clean,order_id,approved,delivered,approval_rate,delivery_rate,conversion_rate,drop_at_approval,drop_at_delivery
+Boleto,19556,19526,18963,0.998,0.97,0.97,0.002,0.029
+Credit Card,75996,75940,73785,0.999,0.971,0.971,0.001,0.028
+Debit Card,1489,1489,1447,1.0,0.972,0.972,0.0,0.028
+Voucher,5739,5653,5459,0.985,0.951,0.951,0.015,0.034

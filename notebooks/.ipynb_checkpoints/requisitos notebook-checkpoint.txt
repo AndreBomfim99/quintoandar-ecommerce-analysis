@@ -1,0 +1,686 @@
+
+quero que você escreva o arquivo 07_payment_analysis.ipynb
+
+quero que preste muita atenção no que eu peço quero exatamente do jeito que eu peço, caso não consiga analisar 100% do que eu pedi neste texto, me avise.
+
+IMPORTANTE: QUERO QUE VOCE SIGA INTEGRALMENTE ESSES 5 ITENS
+1. ele é um json de um arquivo notebook .ipynb
+2. não quero que use emojis, nem emoticons nem caracteres especiais
+3. quero que tudo seja em inglês, TUDO dentro do codigo
+4. não quero que coloque comentários no código, comentários que eu me refiro são os comentários de código sobre o que cada trecho faz como: # comentario
+5. quero que escreva o código o mais próximo possível que um ser humano escreveria
+
+
+meu id do projeto no google cloud PROJECT_ID = 'quintoandar-ecommerce-analysis'
+
+minha chave esta em C:/projects-git/quintoandar-ecommerce-analysis/credentials/bigquery-key.json"  
+
+
+ Estrutura Padrão do Notebook, ele deve ter
+
+    1. Cabeçalho:
+        ◦ Título 
+        ◦ Objetivo da análise 
+        ◦ Data de criação 
+        ◦ Autor 
+    2. Imports:
+        ◦ Bibliotecas necessárias 
+    3. Configuração:
+        ◦ Conexão BigQuery 
+        ◦ Project ID 
+        ◦ Configurações de visualização 
+    4. Queries SQL:
+        ◦ Extrair dados dos marts 
+        ◦ Comentar cada query 
+    5. Análises:
+        ◦ Cálculos 
+        ◦ Transformações 
+        ◦ Visualizações 
+    6. Insights:
+        ◦ Seção final com bullet points 
+        ◦ Key takeaways 
+        ◦ Recomendações 
+    7. Exportar Gráficos:
+        ◦ Salvar como PNG em presentation/figures/ 
+
+Criar Pasta para Figuras caso ela noa esteja criada.
+Onde criar:
+    • Pasta: presentation/figures/ 
+O que fazer:
+    • Em cada notebook, ao final de cada visualização importante 
+    • Adicionar código para salvar como PNG 
+    • Nomear arquivos de forma descritiva: rfm_matrix.png, cohort_heatmap.png, ltv_map_brazil.png
+
+
+
+
+# 📋 **REQUISITOS COMPLETOS PARA as analises em `07_payment_analysis.ipynb`**
+
+---
+
+## **🎯 OBJETIVO DO NOTEBOOK**
+Analisar métodos de pagamento, funil de conversão, comportamento de parcelamento, AOV por método, e identificar oportunidades de otimização financeira.
+
+---
+
+## **📊 1. QUERY PARA DATASET**
+
+### **Marts/Tabelas Necessários:**
+```sql
+-- Principais tabelas:
+- mart_payment_analysis (se existir)
+- olist_staging.stg_payments (principal)
+- olist_staging.stg_orders (status, datas)
+- olist_staging.stg_order_items (valores)
+- olist_staging.stg_reviews (satisfação)
+```
+
+### **Query Principal:**
+```python
+query = f"""
+WITH payment_details AS (
+    SELECT 
+        p.order_id,
+        p.payment_sequential,
+        p.payment_type,
+        p.payment_installments,
+        p.payment_value,
+        
+        -- Order info
+        o.order_status,
+        o.order_purchase_timestamp,
+        o.order_approved_at,
+        o.customer_id,
+        c.customer_state,
+        c.customer_city,
+        
+        -- Order items
+        oi.total_items,
+        oi.total_price,
+        oi.total_freight,
+        
+        -- Reviews
+        r.review_score,
+        
+        -- Calculated fields
+        CASE 
+            WHEN p.payment_installments = 1 THEN 'No Installment'
+            WHEN p.payment_installments BETWEEN 2 AND 3 THEN 'Short Term (2-3x)'
+            WHEN p.payment_installments BETWEEN 4 AND 6 THEN 'Medium Term (4-6x)'
+            WHEN p.payment_installments BETWEEN 7 AND 12 THEN 'Long Term (7-12x)'
+            ELSE 'Very Long Term (12+x)'
+        END as installment_category,
+        
+        CASE 
+            WHEN o.order_status = 'delivered' THEN 1
+            ELSE 0
+        END as is_completed,
+        
+        DATE_DIFF(DATE(o.order_approved_at), DATE(o.order_purchase_timestamp), DAY) as approval_days,
+        
+        CASE 
+            WHEN c.customer_state IN ('SP', 'RJ', 'MG', 'ES') THEN 'Southeast'
+            WHEN c.customer_state IN ('RS', 'SC', 'PR') THEN 'South'
+            WHEN c.customer_state IN ('BA', 'PE', 'CE', 'MA', 'PB', 'RN', 'AL', 'SE', 'PI') THEN 'Northeast'
+            WHEN c.customer_state IN ('AM', 'PA', 'AC', 'RO', 'RR', 'AP', 'TO') THEN 'North'
+            WHEN c.customer_state IN ('GO', 'MT', 'MS', 'DF') THEN 'Central-West'
+            ELSE 'Other'
+        END as region
+        
+    FROM `{PROJECT_ID}.olist_staging.stg_payments` p
+    LEFT JOIN `{PROJECT_ID}.olist_staging.stg_orders` o 
+        ON p.order_id = o.order_id
+    LEFT JOIN `{PROJECT_ID}.olist_staging.stg_customers` c 
+        ON o.customer_id = c.customer_id
+    LEFT JOIN (
+        SELECT 
+            order_id,
+            COUNT(*) as total_items,
+            SUM(price) as total_price,
+            SUM(freight_value) as total_freight
+        FROM `{PROJECT_ID}.olist_staging.stg_order_items`
+        GROUP BY order_id
+    ) oi ON p.order_id = oi.order_id
+    LEFT JOIN `{PROJECT_ID}.olist_staging.stg_reviews` r 
+        ON p.order_id = r.order_id
+    
+    WHERE p.payment_value > 0
+    AND p.payment_type IS NOT NULL
+)
+
+SELECT * FROM payment_details
+"""
+```
+
+---
+
+## **🔧 2. FEATURE ENGINEERING**
+
+### **A) Payment Features:**
+```python
+# Payment method mapping (português → inglês)
+payment_mapping = {
+    'credit_card': 'Credit Card',
+    'boleto': 'Boleto',
+    'voucher': 'Voucher',
+    'debit_card': 'Debit Card',
+    'not_defined': 'Not Defined'
+}
+df['payment_type_clean'] = df['payment_type'].map(payment_mapping).fillna(df['payment_type'])
+
+# Payment category (single vs multiple)
+df['has_multiple_payments'] = (df['payment_sequential'] > 1).astype(int)
+
+# Average installment value
+df['installment_value'] = df['payment_value'] / df['payment_installments']
+
+# Flag high value
+df['high_value'] = (df['payment_value'] > df['payment_value'].quantile(0.75)).astype(int)
+```
+
+### **B) AOV Features:**
+```python
+# AOV (Average Order Value)
+df['aov'] = df['total_price'] + df['total_freight']
+
+# Payment to price ratio
+df['payment_to_price_ratio'] = df['payment_value'] / df['total_price']
+
+# AOV category
+df['aov_category'] = pd.cut(
+    df['aov'],
+    bins=[0, 100, 250, 500, np.inf],
+    labels=['Low (0-100)', 'Medium (100-250)', 'High (250-500)', 'Very High (500+)']
+)
+```
+
+### **C) Conversion Features:**
+```python
+# Conversion funnel stages
+df['stage'] = 'Unknown'
+
+# Stage 1: Order created
+df.loc[df['order_status'].notna(), 'stage'] = 'Order Created'
+
+# Stage 2: Payment approved
+df.loc[df['order_approved_at'].notna(), 'stage'] = 'Payment Approved'
+
+# Stage 3: Order delivered
+df.loc[df['order_status'] == 'delivered', 'stage'] = 'Delivered'
+
+# Conversion flags
+df['approved'] = (df['order_approved_at'].notna()).astype(int)
+df['delivered'] = (df['is_completed'] == 1).astype(int)
+```
+
+### **D) Time Features:**
+```python
+# Extract temporal features
+df['purchase_month'] = pd.to_datetime(df['order_purchase_timestamp']).dt.month
+df['purchase_weekday'] = pd.to_datetime(df['order_purchase_timestamp']).dt.day_name()
+df['purchase_hour'] = pd.to_datetime(df['order_purchase_timestamp']).dt.hour
+
+# Time to approval
+df['approval_speed'] = pd.cut(
+    df['approval_days'],
+    bins=[-np.inf, 0, 1, 3, np.inf],
+    labels=['Instant', 'Same Day', '1-3 Days', '3+ Days']
+)
+```
+
+---
+
+## **📊 3. ANÁLISES OBRIGATÓRIAS**
+
+### **A) Funil de Conversão por Método**
+
+**Métricas:**
+```python
+# 1. Volume por método
+volume_by_method = df.groupby('payment_type_clean')['order_id'].count()
+
+# 2. Taxa de aprovação por método
+approval_rate = df.groupby('payment_type_clean')['approved'].mean()
+
+# 3. Taxa de entrega por método
+delivery_rate = df.groupby('payment_type_clean')['delivered'].mean()
+
+# 4. Funil completo
+funnel_analysis = df.groupby('payment_type_clean').agg({
+    'order_id': 'count',  # Total orders
+    'approved': 'sum',    # Approved orders
+    'delivered': 'sum'    # Delivered orders
+})
+
+funnel_analysis['approval_rate'] = funnel_analysis['approved'] / funnel_analysis['order_id']
+funnel_analysis['delivery_rate'] = funnel_analysis['delivered'] / funnel_analysis['order_id']
+funnel_analysis['conversion_rate'] = funnel_analysis['delivered'] / funnel_analysis['order_id']
+
+# 5. Drop-off points
+funnel_analysis['drop_at_approval'] = 1 - funnel_analysis['approval_rate']
+funnel_analysis['drop_at_delivery'] = funnel_analysis['approval_rate'] - funnel_analysis['delivery_rate']
+```
+
+**Visualizações:**
+1. **Sankey Diagram** - Funil completo (Order → Approved → Delivered)
+2. **Funnel Chart** - Por método de pagamento
+3. **Bar Chart** - Taxa de conversão por método
+
+---
+
+### **B) Análise de Parcelamento**
+
+**Métricas:**
+```python
+# 1. Distribuição de parcelamento
+installment_dist = df['payment_installments'].value_counts().sort_index()
+
+# 2. Parcelamento por método
+installment_by_method = df.groupby('payment_type_clean')['payment_installments'].agg([
+    'mean', 'median', 'max', 'min'
+])
+
+# 3. AOV por número de parcelas
+aov_by_installment = df.groupby('payment_installments')['aov'].mean()
+
+# 4. Volume vs Parcelamento
+volume_vs_installment = df.groupby('payment_installments').agg({
+    'order_id': 'count',
+    'payment_value': 'mean',
+    'aov': 'mean',
+    'review_score': 'mean'
+})
+
+# 5. Categoria de parcelamento
+installment_category_analysis = df.groupby('installment_category').agg({
+    'order_id': 'count',
+    'payment_value': 'mean',
+    'aov': 'mean',
+    'approved': 'mean',
+    'review_score': 'mean'
+})
+
+# 6. Sweet spot de parcelamento
+# Identificar parcelamento ótimo (volume × conversão × AOV)
+df['installment_score'] = (
+    df['payment_installments'] * 
+    df['approved'] * 
+    (df['aov'] / df['aov'].mean())
+)
+```
+
+**Visualizações:**
+4. **Histogram** - Distribuição de parcelas
+5. **Line Chart** - AOV vs Número de parcelas
+6. **Heatmap** - Método × Parcelas (volume)
+7. **Box Plot** - Valor de parcela por categoria
+
+---
+
+### **C) AOV por Método**
+
+**Métricas:**
+```python
+# 1. AOV médio por método
+aov_by_method = df.groupby('payment_type_clean')['aov'].mean().sort_values(ascending=False)
+
+# 2. Distribuição de AOV por método
+aov_distribution = df.groupby('payment_type_clean')['aov'].describe()
+
+# 3. AOV por região e método
+aov_by_region_method = df.pivot_table(
+    values='aov',
+    index='region',
+    columns='payment_type_clean',
+    aggfunc='mean'
+)
+
+# 4. Revenue contribution
+revenue_contribution = df.groupby('payment_type_clean').agg({
+    'payment_value': 'sum',
+    'order_id': 'count'
+})
+revenue_contribution['avg_order_value'] = revenue_contribution['payment_value'] / revenue_contribution['order_id']
+revenue_contribution['revenue_share'] = revenue_contribution['payment_value'] / revenue_contribution['payment_value'].sum()
+
+# 5. High-value orders por método
+high_value_by_method = df[df['high_value'] == 1].groupby('payment_type_clean')['order_id'].count()
+```
+
+**Visualizações:**
+8. **Bar Chart** - AOV por método (ordenado)
+9. **Box Plot** - Distribuição de AOV por método
+10. **Grouped Bar** - AOV por região e método
+
+---
+
+### **D) Correlações**
+
+**Análises:**
+```python
+# 1. Correlação: Parcelas × AOV
+corr_installment_aov = df['payment_installments'].corr(df['aov'])
+
+# 2. Correlação: Parcelas × Review Score
+corr_installment_review = df['payment_installments'].corr(df['review_score'])
+
+# 3. Correlação: Payment Value × Review Score
+corr_payment_review = df['payment_value'].corr(df['review_score'])
+
+# 4. Matrix de correlação
+correlation_features = [
+    'payment_installments', 'payment_value', 'aov', 
+    'review_score', 'approval_days', 'total_items'
+]
+corr_matrix = df[correlation_features].corr()
+
+# 5. Regressão: Parcelas → AOV
+from sklearn.linear_model import LinearRegression
+X = df[['payment_installments']].fillna(0)
+y = df['aov'].fillna(df['aov'].mean())
+model = LinearRegression()
+model.fit(X, y)
+aov_impact_per_installment = model.coef_[0]
+```
+
+**Visualizações:**
+11. **Heatmap** - Matriz de correlação
+12. **Scatter Plot** - Parcelas vs AOV (com trendline)
+
+---
+
+## **🎯 4. ESTRUTURA DO NOTEBOOK (12 SEÇÕES)**
+
+```python
+1. Setup & Imports
+2. Configuration
+3. SQL Queries & Data Loading
+4. Data Cleaning & Validation
+5. Feature Engineering
+6. Overall Payment Performance (KPIs)
+7. Conversion Funnel Analysis
+8. Installment Analysis
+9. AOV by Payment Method
+10. Correlation Analysis
+11. Payment Method Comparison
+12. Executive Summary & Exports
+```
+
+---
+
+## **📦 5. BIBLIOTECAS NECESSÁRIAS**
+
+```python
+import pandas as pd
+import numpy as np
+from google.cloud import bigquery
+from google.oauth2 import service_account
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from sklearn.linear_model import LinearRegression
+import warnings
+warnings.filterwarnings('ignore')
+import os
+```
+
+---
+
+## **📊 6. VISUALIZAÇÕES OBRIGATÓRIAS (12 TOTAL)**
+
+### **Seção 6 - Overall Performance:**
+1. KPI Cards (4 métricas principais)
+
+### **Seção 7 - Conversion Funnel:**
+2. Sankey Diagram - Funil completo
+3. Funnel Chart - Por método
+4. Bar Chart - Taxa de conversão
+
+### **Seção 8 - Installment:**
+5. Histogram - Distribuição de parcelas
+6. Line Chart - AOV vs Parcelas
+7. Heatmap - Método × Parcelas
+8. Box Plot - Valor por categoria
+
+### **Seção 9 - AOV:**
+9. Bar Chart - AOV por método
+10. Box Plot - Distribuição AOV
+
+### **Seção 10 - Correlations:**
+11. Heatmap - Matriz correlação
+12. Scatter Plot - Parcelas vs AOV
+
+---
+
+## **✅ 7. VALIDAÇÕES OBRIGATÓRIAS**
+
+```python
+# SEMPRE incluir:
+
+# A) Dataset não vazio
+if len(df) == 0:
+    print("Dataset vazio - criando sample data")
+    # criar dados de exemplo
+
+# B) Verificar colunas críticas
+required_cols = ['order_id', 'payment_type', 'payment_value', 'payment_installments']
+missing_cols = [col for col in required_cols if col not in df.columns]
+if missing_cols:
+    print(f"Missing: {missing_cols}")
+
+# C) Tratar nulos
+df['payment_value'] = df['payment_value'].fillna(0)
+df['payment_installments'] = df['payment_installments'].fillna(1)
+df['review_score'] = df['review_score'].fillna(df['review_score'].median())
+
+# D) Remover outliers
+# Payment value > R$10,000 (outliers extremos)
+df = df[df['payment_value'] <= 10000]
+
+# Installments > 24 (erro de dados)
+df = df[df['payment_installments'] <= 24]
+
+# E) Validar valores positivos
+df = df[df['payment_value'] > 0]
+df = df[df['payment_installments'] > 0]
+```
+
+---
+
+## **📤 8. EXPORTS FINAIS (4 ARQUIVOS)**
+
+```python
+# 1. Payment method summary
+method_summary = df.groupby('payment_type_clean').agg({
+    'order_id': 'count',
+    'payment_value': ['mean', 'sum'],
+    'payment_installments': 'mean',
+    'aov': 'mean',
+    'approved': 'mean',
+    'delivered': 'mean',
+    'review_score': 'mean'
+}).round(3)
+
+method_summary.to_csv('exports/payment_method_summary.csv')
+
+# 2. Installment analysis
+installment_summary = df.groupby('payment_installments').agg({
+    'order_id': 'count',
+    'payment_value': 'mean',
+    'aov': 'mean',
+    'approved': 'mean',
+    'review_score': 'mean'
+}).round(3)
+
+installment_summary.to_csv('exports/installment_analysis.csv')
+
+# 3. Conversion funnel
+funnel_export = funnel_analysis.round(3)
+funnel_export.to_csv('exports/conversion_funnel_by_method.csv')
+
+# 4. Correlation matrix
+corr_matrix.to_csv('exports/payment_correlations.csv')
+```
+
+---
+
+## **🎯 9. INSIGHTS ESPERADOS**
+
+### **A) Conversão:**
+- Método X tem maior conversão (Y%)
+- Boleto tem Z% de drop-off na aprovação
+- Credit card tem melhor taxa de entrega
+
+### **B) Parcelamento:**
+- 1x (à vista) representa X% dos pedidos
+- Parcelamento médio: Y vezes
+- Sweet spot: 3-6 parcelas (melhor conversão + AOV)
+
+### **C) AOV:**
+- Credit card: maior AOV (R$ X)
+- Boleto: menor AOV (R$ Y)
+- Diferença de Z% entre métodos
+
+### **D) Correlações:**
+- Mais parcelas = maior AOV (r = +0.X)
+- Mais parcelas = menor review? (verificar)
+- Payment value não afeta conversão
+
+---
+
+## **🚨 10. CUIDADOS ESPECIAIS**
+
+### **A) Métodos de Pagamento:**
+```python
+# Valores esperados em português:
+payment_types = [
+    'credit_card',    # ~70% dos pedidos
+    'boleto',         # ~20% dos pedidos
+    'voucher',        # ~5% dos pedidos
+    'debit_card',     # ~5% dos pedidos
+    'not_defined'     # <1% dos pedidos
+]
+```
+
+### **B) Parcelas:**
+```python
+# Valores esperados:
+# - 1x (à vista): ~40% dos pedidos
+# - 2-6x: ~45% dos pedidos
+# - 7-12x: ~10% dos pedidos
+# - 12+x: ~5% dos pedidos
+
+# Validar:
+df = df[df['payment_installments'] <= 24]  # Máximo razoável
+df = df[df['payment_installments'] > 0]     # Mínimo
+```
+
+### **C) Múltiplos Pagamentos:**
+```python
+# Alguns pedidos têm múltiplas formas de pagamento
+# payment_sequential identifica isso
+
+# Calcular pagamento total do pedido:
+total_by_order = df.groupby('order_id')['payment_value'].sum()
+
+# Método principal (payment_sequential = 1)
+primary_payments = df[df['payment_sequential'] == 1]
+```
+
+---
+
+## **✅ CRITÉRIOS DE SUCESSO**
+
+- ✅ 12 visualizações criadas
+- ✅ Funil de conversão completo
+- ✅ Análise de parcelamento profunda
+- ✅ AOV por método calculado
+- ✅ Correlações identificadas
+- ✅ 4 CSVs exportados
+- ✅ 10+ insights acionáveis
+- ✅ Identificar método mais lucrativo
+- ✅ Identificar sweet spot de parcelamento
+
+---
+
+## **💡 INSIGHTS ADICIONAIS PARA INCLUIR**
+
+### **1. Payment Mix Optimization:**
+```python
+# Qual mix de métodos maximiza revenue?
+# Simular cenários de incentivo
+
+# Scenario 1: +10% credit card adoption
+# Scenario 2: Reduzir boleto em 5%
+# Scenario 3: Incentivar à vista (1x)
+```
+
+### **2. Regional Preferences:**
+```python
+# Método preferido por região
+method_by_region = df.pivot_table(
+    values='order_id',
+    index='region',
+    columns='payment_type_clean',
+    aggfunc='count',
+    fill_value=0
+)
+
+# Normalizar por região (%)
+method_pct_by_region = method_by_region.div(method_by_region.sum(axis=1), axis=0)
+```
+
+### **3. Temporal Patterns:**
+```python
+# Método preferido por hora do dia
+# Parcelamento por dia da semana
+# Sazonalidade mensal
+```
+
+---
+
+## **📊 EXEMPLO DE EXECUTIVE SUMMARY**
+
+```python
+summary = f"""
+PAYMENT ANALYSIS - EXECUTIVE SUMMARY
+====================================
+
+1. PAYMENT MIX:
+   - Total orders: {len(df):,}
+   - Credit Card: {credit_card_pct:.1%} ({credit_card_count:,} orders)
+   - Boleto: {boleto_pct:.1%} ({boleto_count:,} orders)
+   - Most used: {most_used_method} ({most_used_pct:.1%})
+
+2. CONVERSION FUNNEL:
+   - Overall conversion rate: {overall_conversion:.1%}
+   - Best method: {best_conversion_method} ({best_conversion_rate:.1%})
+   - Worst method: {worst_conversion_method} ({worst_conversion_rate:.1%})
+
+3. INSTALLMENT BEHAVIOR:
+   - Average installments: {avg_installments:.1f}x
+   - À vista (1x): {pct_1x:.1%}
+   - Parcelado (2+x): {pct_2plus:.1%}
+   - Sweet spot: {sweet_spot_installments}x
+
+4. AOV ANALYSIS:
+   - Overall AOV: R$ {overall_aov:.2f}
+   - Highest AOV: {highest_aov_method} (R$ {highest_aov_value:.2f})
+   - Lowest AOV: {lowest_aov_method} (R$ {lowest_aov_value:.2f})
+
+5. KEY INSIGHTS:
+   • {insight_1}
+   • {insight_2}
+   • {insight_3}
+
+6. RECOMMENDATIONS:
+   1. {recommendation_1}
+   2. {recommendation_2}
+   3. {recommendation_3}
+
+
+
+entendeu tudo? me confirme que você entendeu e analisou 100% antes de começar a codificar.

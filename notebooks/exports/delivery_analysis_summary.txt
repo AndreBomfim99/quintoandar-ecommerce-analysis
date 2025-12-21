@@ -1,0 +1,40 @@
+
+Delivery Performance Analysis Report
+===================================
+
+Dataset Overview:
+- Total Orders: 92,563
+- Time Period: 2016-09-15 to 2018-08-29
+- Regions Covered: 5
+- States Covered: 27
+
+Key Metrics:
+- Overall SLA Compliance: 93.0%
+- Average Delivery Time: 12.5 days
+- Average Delay (when delayed): 9.6 days
+- Delayed Orders: 6,440 (7.0%)
+- Average Freight Cost: R$ 22.27
+- Average Review Score: 4.16/5.0
+
+Top Performing Regions (by SLA):
+         region  total_orders  avg_delivery_days  avg_delay_days  sla_rate  avg_freight  avg_review_score
+4     Southeast         63788              10.70          -11.00      0.94        19.58              4.19
+3         South         13226              14.11          -12.41      0.94        23.87              4.20
+0  Central-West          5392              15.05          -11.77      0.93        25.72              4.14
+
+Bottom Performing Regions (by SLA):
+         region  total_orders  avg_delivery_days  avg_delay_days  sla_rate  avg_freight  avg_review_score
+2     Northeast          8548              19.87          -10.79      0.87        34.47              3.98
+1         North          1609              22.86          -13.97      0.91        39.47              4.04
+0  Central-West          5392              15.05          -11.77      0.93        25.72              4.14
+
+Impact Analysis:
+- Delay-Review Correlation: -0.300
+- Review Impact per Delay Day: -0.044 points
+- SLA Improvement with High Freight: -1.6% points
+
+Recommendations:
+1. Focus on improving Northeast region logistics
+2. Optimize freight cost for Southeast region
+3. Implement expedited shipping for high-value orders
+4. Monitor seasonal patterns in month 3
