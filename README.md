@@ -10,14 +10,22 @@ Comprehensive e-commerce data analysis using the Olist dataset, focusing on busi
 
 ## Objectives
 
+### Business Objectives
+- Understand customer behavior and identify retention opportunities
+- Analyze operational performance and identify logistics bottlenecks
+- Evaluate revenue concentration and geographic expansion potential
+- Segment customers for targeted marketing and CRM strategies
+- Quantify churn risk and identify high-value customer profiles
+
+### Technical Objectives
 - Exploratory Data Analysis (EDA)
 - Dimensional modeling in BigQuery
 - Creation of data marts for business analysis
-- Interactive dashboards in Looker Studio
 
 ---
 
-## Project Structure Overview
+## Concise Overview of the Project Structure
+
 
 ```
 ├── notebooks/          # Exploratory analyses (9 notebooks)
@@ -30,7 +38,7 @@ Comprehensive e-commerce data analysis using the Olist dataset, focusing on busi
 └── data/raw/          # Original Olist dataset
 ```
 
-> **Detailed analyses:** See [`notebooks/README.md`](notebooks/README.md)
+> **Detailed structure:** See [`README Structure`](Structure.md)
 
 ---
 
@@ -49,9 +57,11 @@ Comprehensive e-commerce data analysis using the Olist dataset, focusing on busi
 
 ---
 
-## Power BI Dashboards
+## Power BI Dashboards - Executive Overview
 
-### [Executive Overview](/dashboards/powerbi/dashboard_executive.pbix)
+- **Power BI Dashboard (Project Files)**: [View project folder](/dashboards/powerbi/)
+- **Published Report (Power BI Service)**: [Access interactive dashboard](https://app.powerbi.com/groups/me/reports/b2d616af-e81c-42ce-b44a-3016378da26d/8b815452a93288fb281b?experience=power-bi)
+
 Key KPIs, revenue trends, and top customers
 
 ---
@@ -76,6 +86,10 @@ Key KPIs, revenue trends, and top customers
 - **Top 5 states**: ~73% of revenue (regional concentration)
 - **Southeast dominates**: SP-RJ-MG as main markets
 - **Opportunity**: States outside the axis with competitive LTV
+
+---
+
+> **Detailed analyses:** See [`notebooks/README.md`](notebooks/README.md)
 
 ---
 
@@ -119,12 +133,11 @@ jupyter notebook notebooks/
 
 ## Author
 
-**[Your Name]**  
-[![LinkedIn](https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=Linkedin&logoColor=white)](YOUR_LINKEDIN)
-[![GitHub](https://img.shields.io/badge/-GitHub-black?style=flat-square&logo=github)](YOUR_GITHUB)
+**André Bomfim**  
+
+[LinkedIn](https://www.linkedin.com/in/andre-bomfim/)
+
+[GitHub](https://github.com/AndreBomfim99/quintoandar-ecommerce-analysis)
 
 ---
 
-## License
-
-This project is under the MIT license.
