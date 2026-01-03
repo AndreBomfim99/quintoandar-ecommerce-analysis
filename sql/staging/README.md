@@ -5,7 +5,7 @@ The staging layer contains cleaned and standardized tables from the raw Olist Br
 
 ---
 
-## 📊 Staging Tables
+## Staging Tables
 
 ### Execution Order
 Due to foreign key validations, tables must be created in this specific order:
@@ -27,11 +27,11 @@ Due to foreign key validations, tables must be created in this specific order:
 **Primary Key:** `customer_id`
 
 ### Main Transformations
-- ✅ Deduplication by `customer_id`
-- ✅ Standardized location data (uppercase state, title case city)
-- ✅ Validated Brazilian states (27 UFs)
-- ✅ Validated ZIP codes (5-digit format, valid range)
-- ✅ **Enrichment:** Added `customer_region` (Norte, Nordeste, Centro-Oeste, Sudeste, Sul)
+-  Deduplication by `customer_id`
+-  Standardized location data (uppercase state, title case city)
+-  Validated Brazilian states (27 UFs)
+-  Validated ZIP codes (5-digit format, valid range)
+-  **Enrichment:** Added `customer_region` (Norte, Nordeste, Centro-Oeste, Sudeste, Sul)
 
 ### Data Quality
 - **Before:** ~99,441 rows
@@ -56,11 +56,11 @@ customer_region (created)
 **Primary Key:** `seller_id`
 
 ### Main Transformations
-- ✅ Deduplication by `seller_id`
-- ✅ Standardized location data (uppercase state, title case city)
-- ✅ Validated Brazilian states (27 UFs)
-- ✅ Validated ZIP codes (5-digit format, valid range)
-- ✅ **Enrichment:** Added `seller_region`
+- Deduplication by `seller_id`
+- Standardized location data (uppercase state, title case city)
+- Validated Brazilian states (27 UFs)
+- Validated ZIP codes (5-digit format, valid range)
+- **Enrichment:** Added `seller_region`
 
 ### Data Quality
 - **Before:** ~3,095 rows
@@ -84,12 +84,12 @@ seller_region (created)
 **Primary Key:** `product_id`
 
 ### Main Transformations
-- ✅ Deduplication by `product_id`
-- ✅ **JOIN:** Translated categories from Portuguese to English
-- ✅ Validated dimensions (weight, length, height, width)
-- ✅ Removed outliers (products > 100kg or > 3m)
-- ✅ Handled missing categories as 'unknown'
-- ⚠️ **Note:** Preserved original column names with typos (`product_name_lenght`, `product_description_lenght`)
+- Deduplication by `product_id`
+- **JOIN:** Translated categories from Portuguese to English
+- Validated dimensions (weight, length, height, width)
+- Removed outliers (products > 100kg or > 3m)
+- Handled missing categories as 'unknown'
+- **Note:** Preserved original column names with typos (`product_name_lenght`, `product_description_lenght`)
 
 ### Data Quality
 - **Before:** ~32,951 rows
@@ -119,15 +119,15 @@ product_width_cm (validated)
 **Primary Key:** `geolocation_zip_code_prefix`
 
 ### Main Transformations
-- ✅ **ENRICHMENT:** LEFT JOIN with Base dos Dados (official Brazilian data)
-- ✅ Prioritized official city names from Base dos Dados
-- ✅ Extracted coordinates from `centroide` (GEOGRAPHY type)
-- ✅ Validated coordinates (Brazil bounds: lat -34 to 5, lng -74 to -34)
-- ✅ Removed invalid coordinates (0, 0)
-- ✅ Grouped by ZIP code prefix (5 digits)
-- ✅ Added `municipality_id` (IBGE code)
-- ✅ Added `data_source` for traceability
-- ✅ **Enrichment:** Added `geolocation_region`
+- **ENRICHMENT:** LEFT JOIN with Base dos Dados (official Brazilian data)
+- Prioritized official city names from Base dos Dados
+- Extracted coordinates from `centroide` (GEOGRAPHY type)
+- Validated coordinates (Brazil bounds: lat -34 to 5, lng -74 to -34)
+- Removed invalid coordinates (0, 0)
+- Grouped by ZIP code prefix (5 digits)
+- Added `municipality_id` (IBGE code)
+- Added `data_source` for traceability
+- **Enrichment:** Added `geolocation_region`
 
 ### Data Quality
 - **Before:** ~1,000,185 rows
@@ -156,12 +156,12 @@ geolocation_region (created)
 **Foreign Key:** `customer_id` → `stg_customers`
 
 ### Main Transformations
-- ✅ Deduplication by `order_id`
-- ✅ Standardized `order_status` (lowercase, trimmed)
-- ✅ Validated timestamp sequence (purchase → approved → carrier → delivered)
-- ✅ Removed orders with future purchase dates
-- ✅ **FK Validation:** Only orders with valid `customer_id`
-- ✅ **Flags created:**
+- Deduplication by `order_id`
+- Standardized `order_status` (lowercase, trimmed)
+- Validated timestamp sequence (purchase → approved → carrier → delivered)
+- Removed orders with future purchase dates
+- **FK Validation:** Only orders with valid `customer_id`
+- **Flags created:**
   - `is_delivered` (BOOL)
   - `is_completed` (BOOL)
   - `is_canceled` (BOOL)
@@ -199,11 +199,11 @@ is_canceled (created, BOOL)
 - `seller_id` → `stg_sellers`
 
 ### Main Transformations
-- ✅ Deduplication by `order_id` + `order_item_id`
-- ✅ **FK Validation:** Inner join with `stg_orders`
-- ✅ Validated monetary values (price ≥ 0, freight ≥ 0)
-- ✅ Removed extreme outliers (price > R$50,000)
-- ✅ **Calculated field:** `total_item_value = price + freight_value`
+- Deduplication by `order_id` + `order_item_id`
+- **FK Validation:** Inner join with `stg_orders`
+- Validated monetary values (price ≥ 0, freight ≥ 0)
+- Removed extreme outliers (price > R$50,000)
+- **Calculated field:** `total_item_value = price + freight_value`
 
 ### Data Quality
 - **Before:** ~112,650 rows
@@ -233,13 +233,13 @@ total_item_value (created)
 **Foreign Key:** `order_id` → `stg_orders`
 
 ### Main Transformations
-- ✅ Deduplication by `order_id` + `payment_sequential`
-- ✅ Standardized `payment_type` (lowercase, trimmed)
-- ✅ Validated payment types (credit_card, debit_card, boleto, voucher)
-- ✅ Validated `payment_value` > 0
-- ✅ Validated `payment_installments` ≥ 1 (treated nulls as 1)
-- ✅ **FK Validation:** Inner join with `stg_orders`
-- ✅ **Flags created:**
+- Deduplication by `order_id` + `payment_sequential`
+- Standardized `payment_type` (lowercase, trimmed)
+- Validated payment types (credit_card, debit_card, boleto, voucher)
+- Validated `payment_value` > 0
+- Validated `payment_installments` ≥ 1 (treated nulls as 1)
+- **FK Validation:** Inner join with `stg_orders`
+- **Flags created:**
   - `is_credit_card` (BOOL)
   - `is_boleto` (BOOL)
 
@@ -269,12 +269,12 @@ is_boleto (created, BOOL)
 **Foreign Key:** `order_id` → `stg_orders`
 
 ### Main Transformations
-- ✅ Deduplication by `review_id` (kept most recent)
-- ✅ Validated `review_score` (1-5 range)
-- ✅ Cleaned text fields (trimmed whitespace)
-- ✅ Preserved null comments (not all reviews have text)
-- ✅ **FK Validation:** Inner join with `stg_orders`
-- ✅ **Flag created:** `has_comment` (BOOL)
+- Deduplication by `review_id` (kept most recent)
+- Validated `review_score` (1-5 range)
+- Cleaned text fields (trimmed whitespace)
+- Preserved null comments (not all reviews have text)
+- **FK Validation:** Inner join with `stg_orders`
+- **Flag created:** `has_comment` (BOOL)
 
 ### Data Quality
 - **Before:** ~99,224 rows
@@ -297,11 +297,11 @@ has_comment (created, BOOL)
 
 ---
 
-## 📋 Data Quality Rules Applied
+## Data Quality Rules Applied
 
 All staging tables follow these standardized rules:
 
-### ✅ Applied Rules
+### Applied Rules
 1. **Data Types:**
    - IDs → STRING
    - Dates → TIMESTAMP
@@ -327,7 +327,7 @@ All staging tables follow these standardized rules:
    - Categories: controlled vocabulary
    - Preserved original columns even when creating new ones
 
-### ❌ NOT Applied (Saved for Marts Layer)
+### NOT Applied (Saved for Marts Layer)
 - No aggregations
 - No complex metrics (RFM, LTV, cohorts)
 - No complex joins (except FK validation)
@@ -336,7 +336,7 @@ All staging tables follow these standardized rules:
 
 ---
 
-## 🔍 Validation Queries
+## Validation Queries
 
 Each SQL file includes commented validation queries to check:
 - Null percentages per column
@@ -349,7 +349,7 @@ Uncomment the validation section at the end of each SQL file and execute separat
 
 ---
 
-## 📈 Summary Statistics
+## Summary Statistics
 
 | Table | Rows (Raw) | Rows (Staging) | Dedup Rate | Key Enrichments |
 |-------|------------|----------------|------------|-----------------|
@@ -364,16 +364,7 @@ Uncomment the validation section at the end of each SQL file and execute separat
 
 ---
 
-## 🚀 Next Steps
-
-After completing the staging layer, proceed to:
-1. **Marts Layer** - Create analytical aggregated tables
-2. **Analysis** - Business intelligence queries
-3. **Visualization** - Dashboard creation
-
----
-
-## 📝 Notes
+## Notes
 
 - All scripts use `CREATE OR REPLACE TABLE` for idempotency
 - Foreign key validations use INNER JOIN to maintain referential integrity
